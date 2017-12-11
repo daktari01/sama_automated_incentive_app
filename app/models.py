@@ -22,17 +22,16 @@ class Employee(UserMixin, db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     is_admin = db.Column(db.Boolean, default=False)
-    subprojects = db.relationship('Subproject', backref='employee', 
-                                    lazy='dynamic')
     attendances = db.relationship('Attendance', backref='employee', 
                                     lazy='dynamic')
     incentives = db.relationship('Incentive', backref='employee', 
                                     lazy='dynamic')
+    
 
     @property
     def password(self):
         """
-        Prevent password frombeing accessed
+        Prevent password from being accessed
         """
         raise AttributeError('Password is not readable.')
 
@@ -65,15 +64,13 @@ class Incentive(db.Model):
     __tablename__ = 'incentives'
 
     id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    inc_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'))
+    inc_attendances_id = db.Column(db.Integer, db.ForeignKey('attendances.id'))
     production = db.Column(db.Integer)
     av_qa_score = db.Column(db.Integer)
     total_points = db.Column(db.Integer)
     amount = db.Column(db.Float)
-
-    def __repr__(self):
-        return '<Incentive: {}>'.format(self.id)
 
 
 class Project(db.Model):
@@ -85,7 +82,7 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True)
-    team_lead = db.Column(db.String(100), db.ForeignKey('employees.id'))
+    pro_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     description = db.Column(db.String(200))
     employees = db.relationship('Employee', backref='project',
                                  lazy='dynamic')
@@ -106,8 +103,7 @@ class Subproject(db.Model):
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    incentives = db.relationship('Incentive', backref='subproject', 
-                                    lazy='dynamic')
+    employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
 
     def __repr__(self):
         return '<Subproject: {}>'.format(self.name)
@@ -120,13 +116,11 @@ class Attendance(db.Model):
     __tablename__ = 'attendances'
 
     id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    att_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     leave_days = db.Column(db.Integer)
     days_present = db.Column(db.Integer)
     percentage_attendance = db.Column(db.Integer)
 
-    def __repr__(self):
-        return '<Attendance: {}>'.format(self.id)
 
 class Role(db.Model):
     """
