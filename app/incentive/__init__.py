@@ -2,6 +2,6 @@
 
 from flask import Blueprint
 
-incentive = Blueprint(incentive, __name__)
+incentive = Blueprint('incentive', __name__)
 
 from . import views

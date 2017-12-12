@@ -19,12 +19,13 @@ class Employee(UserMixin, db.Model):
     username = db.Column(db.String(60), index=True, unique=True)
     emp_name = db.Column(db.String(100), index=True)
     password_hash = db.Column(db.String(128))
-    subproject_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    emp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    emp_subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'))
+    emp_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     is_admin = db.Column(db.Boolean, default=False)
-    attendances = db.relationship('Attendance', backref='employee', 
+    emp_attendances = db.relationship('Attendance', backref='employee', 
                                     lazy='dynamic')
-    incentives = db.relationship('Incentive', backref='employee', 
+    emp_incentives = db.relationship('Incentive', backref='employee', 
                                     lazy='dynamic')
     
 
@@ -66,7 +67,7 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
-    employees = db.relationship('Employee', backref='role', lazy='dynamic')
+    rol_employees = db.relationship('Employee', backref='role', lazy='dynamic')
 
     def __repr__(self):
         return '<Role: {}>'.format(self.name)
@@ -80,10 +81,11 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    pro_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     description = db.Column(db.String(200))
-    subprojects = db.relationship('Subproject', backref='project', 
+    pro_subprojects = db.relationship('Subproject', backref='project', 
                                     lazy='dynamic')
+    pro_employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
                                     
 class Subproject(db.Model):
     """
@@ -95,13 +97,13 @@ class Subproject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
-    incentives = db.relationship('Incentive', backref='subproject', lazy='dynamic')
+    sp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    sp_employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
+    sp_incentives = db.relationship('Incentive', backref='subproject', lazy='dynamic')
 
     def __repr__(self):
         return '<Subproject: {}>'.format(self.name)
-        
+
 class Attendance(db.Model):
     """
     Create an Attendance class
@@ -110,12 +112,12 @@ class Attendance(db.Model):
     __tablename__ = 'attendances'
 
     id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    att_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     leave_days = db.Column(db.Integer)
     days_present = db.Column(db.Integer)
     percentage_attendance = db.Column(db.Integer)
-    incentives = db.relationship('Incentive', backref='attendance', lazy='dynamic')
-    
+    att_incentives = db.relationship('Incentive', backref='attendance', lazy='dynamic')
+        
 class Incentive(db.Model):
     """
     Create an Incentive table
@@ -124,9 +126,9 @@ class Incentive(db.Model):
     __tablename__ = 'incentives'
 
     id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
-    subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'))
-    attendances_id = db.Column(db.Integer, db.ForeignKey('attendances.id'))
+    inc_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    inc_subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'))
+    inc_attendances_id = db.Column(db.Integer, db.ForeignKey('attendances.id'))
     production = db.Column(db.Integer)
     av_qa_score = db.Column(db.Integer)
     total_points = db.Column(db.Integer)

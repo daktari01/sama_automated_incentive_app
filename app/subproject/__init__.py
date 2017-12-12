@@ -2,6 +2,6 @@
 
 from flask import Blueprint
 
-subproject = Blueprint(subproject, __name__)
+subproject = Blueprint('subproject', __name__)
 
 from . import views
