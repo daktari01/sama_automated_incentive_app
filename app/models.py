@@ -2,6 +2,7 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import relationship
 
 from app import db, login_manager
 
@@ -23,10 +24,10 @@ class Employee(UserMixin, db.Model):
     emp_subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'))
     emp_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     is_admin = db.Column(db.Boolean, default=False)
-    emp_attendances = db.relationship('Attendance', backref='employee', 
-                                    lazy='dynamic')
-    emp_incentives = db.relationship('Incentive', backref='employee', 
-                                    lazy='dynamic')
+    emp_attendances = db.relationship('Attendance', backref='att_employee', 
+                                    lazy='dynamic', foreign_keys="[attendances.id]")
+    emp_incentives = db.relationship('Incentive', backref='inc_employee', 
+                                    lazy='dynamic', foreign_keys="[incentives.id]")
     
 
     @property
@@ -67,7 +68,8 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
-    rol_employees = db.relationship('Employee', backref='role', lazy='dynamic')
+    rol_employees = db.relationship('Employee', backref='role', 
+                                    lazy='dynamic', foreign_keys="[employees.id]")
 
     def __repr__(self):
         return '<Role: {}>'.format(self.name)
@@ -83,9 +85,10 @@ class Project(db.Model):
     name = db.Column(db.String(60), unique=True)
     pro_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     description = db.Column(db.String(200))
-    pro_subprojects = db.relationship('Subproject', backref='project', 
-                                    lazy='dynamic')
-    pro_employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
+    pro_subprojects = db.relationship('Subproject', backref='sp_project', 
+                                    lazy='dynamic', foreign_keys="[subprojects.id]")
+    pro_employees = db.relationship('Employee', backref='emp_project', 
+                                    lazy='dynamic', foreign_keys="[employees.id]")
                                     
 class Subproject(db.Model):
     """
@@ -98,8 +101,10 @@ class Subproject(db.Model):
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
     sp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    sp_employees = db.relationship('Employee', backref='subproject', lazy='dynamic')
-    sp_incentives = db.relationship('Incentive', backref='subproject', lazy='dynamic')
+    sp_employees = db.relationship('Employee', backref='emp_subproject', 
+                                    lazy='dynamic', foreign_keys="[employees.id]")
+    sp_incentives = db.relationship('Incentive', backref='inc_subproject', 
+                                    lazy='dynamic', foreign_keys="[incentives.id]")
 
     def __repr__(self):
         return '<Subproject: {}>'.format(self.name)
@@ -116,7 +121,8 @@ class Attendance(db.Model):
     leave_days = db.Column(db.Integer)
     days_present = db.Column(db.Integer)
     percentage_attendance = db.Column(db.Integer)
-    att_incentives = db.relationship('Incentive', backref='attendance', lazy='dynamic')
+    att_incentives = db.relationship('Incentive', backref='attendance', 
+                                    lazy='dynamic', foreign_keys="[incentives.id]")
         
 class Incentive(db.Model):
     """
