@@ -16,18 +16,23 @@ class Employee(UserMixin, db.Model):
     __tablename__ = 'employees'
 
     id = db.Column(db.Integer, primary_key=True)
-    emp_number = db.Column(db.String(10), index=True, nullable=False, unique=True)
+    emp_number = db.Column(db.String(10), index=True, unique=True, nullable=False)
     username = db.Column(db.String(60), index=True, unique=True)
     emp_name = db.Column(db.String(100), index=True)
     password_hash = db.Column(db.String(128))
-    emp_project_id = db.Column(db.Integer, nullable=False, db.ForeignKey('projects.id'))
-    emp_subproject_id = db.Column(db.Integer, nullable=False, db.ForeignKey('subprojects.id'))
-    emp_role_id = db.Column(db.Integer, nullable=False, db.ForeignKey('roles.id'))
+    emp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    emp_subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'), nullable=False)
+    emp_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+
+    emp_project_ = db.relationship('Project', foreign_keys=[emp_project_id])
+    emp_subproject_ = db.relationship('Subproject', foreign_keys=[emp_subproject_id])
+    emp_role_ = db.relationship('Role', foreign_keys=[emp_role_id])
+
     emp_attendances = db.relationship('Attendance', backref='att_employee', 
-                                    lazy='dynamic', foreign_keys="[attendances.id]")
+                                    lazy='dynamic')
     emp_incentives = db.relationship('Incentive', backref='inc_employee', 
-                                    lazy='dynamic', foreign_keys="[incentives.id]")
+                                    lazy='dynamic')
     
 
     @property
@@ -66,10 +71,10 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), nullable=False, unique=True)
+    name = db.Column(db.String(60), unique=True, nullable=False)
     description = db.Column(db.String(200), nullable=False)
     rol_employees = db.relationship('Employee', backref='role', 
-                                    lazy='dynamic', foreign_keys="[employees.id]")
+                                    lazy='dynamic')
 
     def __repr__(self):
         return '<Role: {}>'.format(self.name)
@@ -82,13 +87,13 @@ class Project(db.Model):
     __tablename__ = 'projects'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), nullable=False, unique=True)
-    pro_employee_id = db.Column(db.Integer, nullable=False, db.ForeignKey('employees.id'))
+    name = db.Column(db.String(60), unique=True, nullable=False)
     description = db.Column(db.String(200), nullable=False)
+
     pro_subprojects = db.relationship('Subproject', backref='sp_project', 
-                                    lazy='dynamic', foreign_keys="[subprojects.id]")
+                                    lazy='dynamic')
     pro_employees = db.relationship('Employee', backref='emp_project', 
-                                    lazy='dynamic', foreign_keys="[employees.id]")
+                                    lazy='dynamic')
                                     
 class Subproject(db.Model):
     """
@@ -98,13 +103,16 @@ class Subproject(db.Model):
     __tablename__ = 'subprojects'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), nullable=False, unique=True)
+    name = db.Column(db.String(60), unique=True,nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    sp_project_id = db.Column(db.Integer, nullable=False, db.ForeignKey('projects.id'))
+    sp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+
+    sp_project_ = db.relationship('Project', foreign_keys=[sp_project_id])
+
     sp_employees = db.relationship('Employee', backref='emp_subproject', 
-                                    lazy='dynamic', foreign_keys="[employees.id]")
+                                    lazy='dynamic')
     sp_incentives = db.relationship('Incentive', backref='inc_subproject', 
-                                    lazy='dynamic', foreign_keys="[incentives.id]")
+                                    lazy='dynamic')
 
     def __repr__(self):
         return '<Subproject: {}>'.format(self.name)
@@ -117,12 +125,15 @@ class Attendance(db.Model):
     __tablename__ = 'attendances'
 
     id = db.Column(db.Integer, primary_key=True)
-    att_employee_id = db.Column(db.Integer, nullable=False, db.ForeignKey('employees.id'))
+    att_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
     leave_days = db.Column(db.Integer, nullable=False)
     days_present = db.Column(db.Integer, nullable=False)
     percentage_attendance = db.Column(db.Integer, nullable=False)
+
+    att_employee_ = db.relationship('Employee', foreign_keys=[att_employee_id])
+
     att_incentives = db.relationship('Incentive', backref='attendance', 
-                                    lazy='dynamic', foreign_keys="[incentives.id]")
+                                    lazy='dynamic')
         
 class Incentive(db.Model):
     """
@@ -132,10 +143,14 @@ class Incentive(db.Model):
     __tablename__ = 'incentives'
 
     id = db.Column(db.Integer, primary_key=True)
-    inc_employee_id = db.Column(db.Integer, nullable=False, db.ForeignKey('employees.id'))
-    inc_subproject_id = db.Column(db.Integer, nullable=False, db.ForeignKey('subprojects.id'))
-    inc_attendances_id = db.Column(db.Integer, nullable=False, db.ForeignKey('attendances.id'))
+    inc_employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
+    inc_subproject_id = db.Column(db.Integer, db.ForeignKey('subprojects.id'), nullable=False)
+    inc_attendances_id = db.Column(db.Integer, db.ForeignKey('attendances.id'), nullable=False)
     production = db.Column(db.Integer, nullable=False)
     av_qa_score = db.Column(db.Integer, nullable=False)
     total_points = db.Column(db.Integer, nullable=False)
     amount = db.Column(db.Float, nullable=False)
+
+    inc_employee_ = db.relationship('Employee', foreign_keys=[inc_employee_id])
+    inc_subproject_ = db.relationship('Subproject', foreign_keys=[inc_subproject_id])
+    inc_attendances_ = db.relationship('Attendance', foreign_keys=[inc_attendances_id])
