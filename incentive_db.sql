@@ -34,7 +34,7 @@ CREATE TABLE `alembic_version` (
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('6ecdff2e21f1');
+INSERT INTO `alembic_version` VALUES ('6e9f3bfd6169');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -47,10 +47,10 @@ DROP TABLE IF EXISTS `attendances`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `attendances` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `att_employee_id` int(11) DEFAULT NULL,
-  `leave_days` int(11) DEFAULT NULL,
-  `days_present` int(11) DEFAULT NULL,
-  `percentage_attendance` int(11) DEFAULT NULL,
+  `att_employee_id` int(11) NOT NULL,
+  `leave_days` int(11) NOT NULL,
+  `days_present` int(11) NOT NULL,
+  `percentage_attendance` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `att_employee_id` (`att_employee_id`),
   CONSTRAINT `attendances_ibfk_1` FOREIGN KEY (`att_employee_id`) REFERENCES `employees` (`id`)
@@ -75,16 +75,18 @@ DROP TABLE IF EXISTS `employees`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `employees` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `emp_number` varchar(10) DEFAULT NULL,
+  `emp_number` varchar(10) NOT NULL,
   `username` varchar(60) DEFAULT NULL,
   `emp_name` varchar(100) DEFAULT NULL,
   `password_hash` varchar(128) DEFAULT NULL,
-  `emp_project_id` int(11) DEFAULT NULL,
-  `emp_subproject_id` int(11) DEFAULT NULL,
-  `emp_role_id` int(11) DEFAULT NULL,
+  `emp_project_id` int(11) NOT NULL,
+  `emp_subproject_id` int(11) NOT NULL,
+  `emp_role_id` int(11) NOT NULL,
   `is_admin` tinyint(1) DEFAULT NULL,
+  `email` varchar(60) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ix_employees_emp_number` (`emp_number`),
+  UNIQUE KEY `ix_employees_email` (`email`),
   UNIQUE KEY `ix_employees_username` (`username`),
   KEY `emp_project_id` (`emp_project_id`),
   KEY `emp_role_id` (`emp_role_id`),
@@ -114,13 +116,13 @@ DROP TABLE IF EXISTS `incentives`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `incentives` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `inc_employee_id` int(11) DEFAULT NULL,
-  `inc_subproject_id` int(11) DEFAULT NULL,
-  `inc_attendances_id` int(11) DEFAULT NULL,
-  `production` int(11) DEFAULT NULL,
-  `av_qa_score` int(11) DEFAULT NULL,
-  `total_points` int(11) DEFAULT NULL,
-  `amount` float DEFAULT NULL,
+  `inc_employee_id` int(11) NOT NULL,
+  `inc_subproject_id` int(11) NOT NULL,
+  `inc_attendances_id` int(11) NOT NULL,
+  `production` int(11) NOT NULL,
+  `av_qa_score` int(11) NOT NULL,
+  `total_points` int(11) NOT NULL,
+  `amount` float NOT NULL,
   PRIMARY KEY (`id`),
   KEY `inc_attendances_id` (`inc_attendances_id`),
   KEY `inc_employee_id` (`inc_employee_id`),
@@ -149,14 +151,11 @@ DROP TABLE IF EXISTS `projects`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) DEFAULT NULL,
-  `description` varchar(200) DEFAULT NULL,
-  `pro_employee_id` int(11) DEFAULT NULL,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(200) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `pro_employee_id` (`pro_employee_id`),
-  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`pro_employee_id`) REFERENCES `employees` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -165,6 +164,7 @@ CREATE TABLE `projects` (
 
 LOCK TABLES `projects` WRITE;
 /*!40000 ALTER TABLE `projects` DISABLE KEYS */;
+INSERT INTO `projects` VALUES (1,'GAR 2','Glassdoor crawlers'),(2,'GAR 1','Glassdoor reviewers');
 /*!40000 ALTER TABLE `projects` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,8 +177,8 @@ DROP TABLE IF EXISTS `roles`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) DEFAULT NULL,
-  `description` varchar(200) DEFAULT NULL,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(200) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -202,14 +202,14 @@ DROP TABLE IF EXISTS `subprojects`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `subprojects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(60) DEFAULT NULL,
-  `description` varchar(200) DEFAULT NULL,
-  `sp_project_id` int(11) DEFAULT NULL,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(200) NOT NULL,
+  `sp_project_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `sp_project_id` (`sp_project_id`),
   CONSTRAINT `subprojects_ibfk_1` FOREIGN KEY (`sp_project_id`) REFERENCES `projects` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -218,6 +218,7 @@ CREATE TABLE `subprojects` (
 
 LOCK TABLES `subprojects` WRITE;
 /*!40000 ALTER TABLE `subprojects` DISABLE KEYS */;
+INSERT INTO `subprojects` VALUES (1,'Unhealthy','Mend broken import configs',1),(2,'High priority','Mend high priority broken import configs',1),(3,'Jiira','Respond to tickets',1),(4,'Production','Create new import configs',1);
 /*!40000 ALTER TABLE `subprojects` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -230,4 +231,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-12-13  6:06:06
+-- Dump completed on 2017-12-14  5:37:47

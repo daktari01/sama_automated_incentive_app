@@ -18,6 +18,7 @@ class Employee(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     emp_number = db.Column(db.String(10), index=True, unique=True, nullable=False)
     username = db.Column(db.String(60), index=True, unique=True)
+    email = db.Column(db.String(60), index=True, unique=True, nullable=False)
     emp_name = db.Column(db.String(100), index=True)
     password_hash = db.Column(db.String(128))
     emp_project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)

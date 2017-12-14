@@ -22,7 +22,7 @@ def register():
                             emp_number=form.emp_number.data,
                             password=form.password.data,
                             project=form.project.data,
-                            sub_project=subproject.data)
+                            sub_project=form.subproject.data)
 
         # add employee to the database
         db.session.add(employee)
