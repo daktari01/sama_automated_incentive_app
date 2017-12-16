@@ -11,9 +11,11 @@ class RegistrationForm(FlaskForm):
     """
     Form for users to create new account
     """
-    project = QuerySelectField(query_factory=lambda: Project.query.all(), 
+    emp_project_name = QuerySelectField(query_factory=lambda: Project.query.all(), 
                                                         get_label="name")
-    subproject = QuerySelectField(query_factory=lambda: Subproject.query.all(), 
+    emp_subproject_name = QuerySelectField(query_factory=lambda: Subproject.query.all(), 
+                                                        get_label="name")
+    emp_role_name = QuerySelectField(query_factory=lambda: Role.query.all(), 
                                                         get_label="name")
     emp_number = StringField('Employee Number', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -25,11 +27,6 @@ class RegistrationForm(FlaskForm):
                                             ])
     confirm_password = PasswordField('Confirm Password')
     submit = SubmitField('Register')
-
-    # def get_project(request, id)
-    # project = Project.query.get(id)
-    # form = RegistrationForm(request.POST, obj=project)
-    # form.project_id.choices = [(proj.id, proj.name) for proj in Project.query.order_by('name')]
 
     def validate_email(self, field):
         if Employee.query.filter_by(email=field.data).first():

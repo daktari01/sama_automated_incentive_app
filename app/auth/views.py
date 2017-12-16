@@ -16,16 +16,23 @@ def register():
     """
     form = RegistrationForm()
     if form.validate_on_submit():
-        employee = Employee(email=form.email.data,
+        employee = Employee(emp_project_name=form.emp_project_name.data,
+                            emp_subproject_name=form.emp_subproject_name.data,
+                            emp_role_name=form.emp_role_name.data,
+                            emp_number=form.emp_number.data,
+                            email=form.email.data,
                             username=form.username.data,
                             emp_name=form.emp_name.data,
-                            emp_number=form.emp_number.data,
-                            password=form.password.data,
-                            project=form.project.data,
-                            sub_project=form.subproject.data)
+                            password=form.password.data)
 
+        # project = form.project.data
+        # subproject = form.subproject.data
+        # project.pro_subprojects.append(subproject)
+        # project.pro_employees.append(employee)
         # add employee to the database
         db.session.add(employee)
+        # db.session.add(subproject)
+        # db.session.add(project)
         db.session.commit()
         flash('You have registered successfully. You can now log in.')
 
